@@ -3,7 +3,9 @@
 namespace Nova\GoCardless;
 
 use Doctrine\DBAL\Connection;
+use Nova\GoCardless\Installer\PaymentLogoInstaller;
 use Nova\GoCardless\Installer\PaymentMethodInstaller;
+use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -71,6 +73,17 @@ class NovaGoCardless extends Plugin
         }
 
         $installer->install($idProvider->getPluginIdByBaseClass(static::class, $context), $context);
+
+        // Logo der Zahlungsart (nur wenn noch keins gesetzt ist)
+        $paymentRepository = $this->container?->get('payment_method.repository');
+        $mediaRepository = $this->container?->get('media.repository');
+        $fileSaver = $this->container?->get(FileSaver::class);
+        $connection = $this->connection();
+        if ($connection !== null && $paymentRepository instanceof EntityRepository && $mediaRepository instanceof EntityRepository && $fileSaver instanceof FileSaver) {
+            /** @var EntityRepository<\Shopware\Core\Checkout\Payment\PaymentMethodCollection> $paymentRepository */
+            /** @var EntityRepository<\Shopware\Core\Content\Media\MediaCollection> $mediaRepository */
+            (new PaymentLogoInstaller($connection, $paymentRepository, $mediaRepository, $fileSaver))->install($context);
+        }
     }
 
     private function paymentMethods(): ?PaymentMethodInstaller

@@ -70,7 +70,7 @@ Nach der Installation ist die Zahlungsart **inaktiv** und keinem Verkaufskanal z
 4. **Verbindung prüfen:** `bin/console nova-gocardless:test` – zeigt Modus, Gläubiger (Creditor) und die
    Webhook-Adresse.
 5. **Webhook einrichten** (siehe unten) und das Secret in der Plugin-Konfiguration eintragen.
-6. **Zahlungsart aktivieren:** *Einstellungen → Zahlungsarten → SEPA-Lastschrift (GoCardless)* → aktiv; dann im
+6. **Zahlungsart aktivieren** (das GoCardless-Logo setzt das Plugin selbst, ein eigenes Bild bleibt): *Einstellungen → Zahlungsarten → SEPA-Lastschrift (GoCardless)* → aktiv; dann im
    Verkaufskanal unter *Zahlung und Versand* zuordnen. Empfohlen: eine **Verfügbarkeitsregel** „Währung ist
    Euro“ (und ggf. Rechnungsland im SEPA-Raum) – andere Währungen lehnt das Plugin ab.
 7. **Datenschutzerklärung** ergänzen (siehe [Datenschutz](#datenschutz)).

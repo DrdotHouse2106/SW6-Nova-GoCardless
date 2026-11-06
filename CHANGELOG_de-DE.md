@@ -1,3 +1,7 @@
+# 1.1.0
+
+- Neu: Die Zahlungsart bekommt das **GoCardless-Logo** (Kasse, Bestellübersicht, Administration). Es wird beim Update/Aktivieren gesetzt, nur wenn die Zahlungsart noch kein Bild hat – ein eigenes Logo bleibt
+
 # 1.0.0
 
 - Erste Version: Zahlungsart **„SEPA-Lastschrift (GoCardless)“** (`nova_gocardless_sepa`) für Shopware 6.7, bei der Installation inaktiv angelegt

@@ -1,3 +1,7 @@
+# 1.1.0
+
+- New: The payment method gets the **GoCardless logo** (checkout, order overview, administration). It is set on update/activation only if the payment method has no image yet – a custom logo is kept
+
 # 1.0.0
 
 - First release: payment method **"SEPA Direct Debit (GoCardless)"** (`nova_gocardless_sepa`) for Shopware 6.7, created inactive on installation
