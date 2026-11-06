@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>GoCardless access</title>
+        <title lang="de-DE">Zugang zu GoCardless</title>
+
+        <input-field type="single-select">
+            <name>mode</name>
+            <label>Mode</label>
+            <label lang="de-DE">Modus</label>
+            <helpText>Sandbox for testing (no real money, test bank details from the GoCardless documentation), Live for real direct debits. Each mode needs its own access token and webhook secret.</helpText>
+            <helpText lang="de-DE">Sandbox zum Testen (kein echtes Geld, Testbankdaten aus der GoCardless-Dokumentation), Live für echte Lastschriften. Jeder Modus braucht ein eigenes Access Token und Webhook-Secret.</helpText>
+            <defaultValue>sandbox</defaultValue>
+            <options>
+                <option>
+                    <id>sandbox</id>
+                    <name>Sandbox (test)</name>
+                    <name lang="de-DE">Sandbox (Test)</name>
+                </option>
+                <option>
+                    <id>live</id>
+                    <name>Live</name>
+                    <name lang="de-DE">Live</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="password">
+            <name>accessToken</name>
+            <label>Access token</label>
+            <label lang="de-DE">Access Token</label>
+            <helpText>GoCardless dashboard → Developers → Create → Access token (read-write). Check with: bin/console nova-gocardless:test</helpText>
+            <helpText lang="de-DE">GoCardless-Dashboard → Developers → Create → Access token (Lesen und Schreiben). Prüfen mit: bin/console nova-gocardless:test</helpText>
+        </input-field>
+
+        <input-field type="password">
+            <name>webhookSecret</name>
+            <label>Webhook secret</label>
+            <label lang="de-DE">Webhook-Secret</label>
+            <helpText>GoCardless dashboard → Developers → Create → Webhook endpoint, URL: https://your-shop/api/_action/nova-gocardless/webhook. Paste the secret shown there. Without webhooks, orders are never set to "Paid".</helpText>
+            <helpText lang="de-DE">GoCardless-Dashboard → Developers → Create → Webhook endpoint, URL: https://ihr-shop/api/_action/nova-gocardless/webhook. Das dort angezeigte Secret hier eintragen. Ohne Webhooks werden Bestellungen nie auf „Bezahlt“ gesetzt.</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Payment</title>
+        <title lang="de-DE">Zahlung</title>
+
+        <input-field type="single-select">
+            <name>successState</name>
+            <label>Payment status after the mandate is set up</label>
+            <label lang="de-DE">Zahlungsstatus nach erteiltem Mandat</label>
+            <helpText>A direct debit is only paid once it has been collected (webhook "confirmed", usually a few working days later). Until then the payment is "In progress" or "Authorized".</helpText>
+            <helpText lang="de-DE">Eine Lastschrift ist erst bezahlt, wenn sie eingezogen wurde (Webhook „confirmed“, meist einige Werktage später). Bis dahin steht die Zahlung auf „In Bearbeitung“ oder „Autorisiert“.</helpText>
+            <defaultValue>in_progress</defaultValue>
+            <options>
+                <option>
+                    <id>in_progress</id>
+                    <name>In progress</name>
+                    <name lang="de-DE">In Bearbeitung</name>
+                </option>
+                <option>
+                    <id>authorized</id>
+                    <name>Authorized</name>
+                    <name lang="de-DE">Autorisiert</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="text">
+            <name>descriptionTemplate</name>
+            <label>Payment description</label>
+            <label lang="de-DE">Zahlungsbeschreibung</label>
+            <helpText>Shown to the customer on the GoCardless page and in the advance notice e-mail. Placeholders: {orderNumber}, {shopName}. Empty = "Bestellung {orderNumber}". At most 140 characters.</helpText>
+            <helpText lang="de-DE">Wird dem Kunden auf der GoCardless-Seite und in der Vorabankündigung gezeigt. Platzhalter: {orderNumber}, {shopName}. Leer = „Bestellung {orderNumber}“. Höchstens 140 Zeichen.</helpText>
+            <placeholder>Bestellung {orderNumber}</placeholder>
+        </input-field>
+
+        <input-field type="text">
+            <name>mandateReferencePrefix</name>
+            <label>Own mandate reference (prefix, optional)</label>
+            <label lang="de-DE">Eigene Mandatsreferenz (Präfix, optional)</label>
+            <helpText>Appears on the customer's bank statement. Reference = prefix + order number (A–Z, 0–9, "-", max. 35 characters). Only works if GoCardless support has enabled custom references for your account – otherwise leave empty (GoCardless generates the reference).</helpText>
+            <helpText lang="de-DE">Erscheint auf dem Kontoauszug des Kunden. Referenz = Präfix + Bestellnummer (A–Z, 0–9, „-“, höchstens 35 Zeichen). Funktioniert nur, wenn der GoCardless-Support eigene Referenzen für Ihr Konto freigeschaltet hat – sonst leer lassen (GoCardless vergibt die Referenz).</helpText>
+            <placeholder>SHOP-</placeholder>
+        </input-field>
+
+        <input-field type="bool">
+            <name>notifyAdmin</name>
+            <label>Notify administration about failed direct debits and chargebacks</label>
+            <label lang="de-DE">Administration bei fehlgeschlagenen Lastschriften und Rückbuchungen benachrichtigen</label>
+            <helpText>Notification in the administration (bell icon). The note is always added to the order's internal comment.</helpText>
+            <helpText lang="de-DE">Benachrichtigung in der Administration (Glocke). Die Notiz am internen Kommentar der Bestellung wird immer geschrieben.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+</config>

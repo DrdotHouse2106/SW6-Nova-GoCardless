@@ -1,0 +1,105 @@
+# Legt automatisch ein GitHub-Release an, sobald in der composer.json eine neue Version steht.
+#
+# Ablauf: Version in composer.json erhöhen (z. B. 1.0.0 → 1.0.1), Eintrag „# 1.0.1“ im Changelog
+# ergänzen, auf main pushen. Die Action erstellt dann den Tag v1.0.1, ein Release mit den
+# Changelog-Notizen und hängt das fertige ZIP für „Erweiterung hochladen“ an.
+# Ins ZIP kommen nur composer.json, src/, README, CHANGELOG und LICENSE (keine Tests, kein node_modules).
+# Gibt es den Tag schon, passiert nichts. Manuell starten: Actions → Release → Run workflow.
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - composer.json
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Version und Plugin-Name lesen
+        id: meta
+        run: |
+          version="$(jq -r '.version // empty' composer.json)"
+          class="$(jq -r '.extra["shopware-plugin-class"] // empty' composer.json)"
+          name="${class##*\\}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Keine gültige Version in composer.json ('$version')"; exit 1
+          fi
+          if ! [[ "$name" =~ ^[A-Za-z][A-Za-z0-9_]*$ ]]; then
+            echo "::error::Plugin-Klasse in composer.json fehlt oder ist ungültig ('$class')"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Prüfen, ob es das Release schon gibt
+        id: exists
+        run: |
+          if git rev-parse -q --verify "refs/tags/${{ steps.meta.outputs.tag }}" >/dev/null; then
+            echo "Tag ${{ steps.meta.outputs.tag }} existiert bereits – nichts zu tun."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Release-Notizen aus dem Changelog
+        if: steps.exists.outputs.skip == 'false'
+        run: |
+          version="${{ steps.meta.outputs.version }}"
+          file=""
+          for candidate in CHANGELOG_de-DE.md CHANGELOG.md CHANGELOG_en-GB.md; do
+            [ -f "$candidate" ] && { file="$candidate"; break; }
+          done
+          if [ -n "$file" ]; then
+            # Abschnitt „# <version>“ bis zur nächsten Überschrift gleicher Ebene
+            awk -v v="$version" '
+              /^# / { if (found) exit; if ($2 == v || $2 == "v" v) { found = 1; next } }
+              found { print }
+            ' "$file" > notes.md
+          fi
+          [ -s notes.md ] || echo "Version $version" > notes.md
+          cat notes.md
+
+      - name: ZIP für „Erweiterung hochladen“ erstellen
+        if: steps.exists.outputs.skip == 'false'
+        run: |
+          name="${{ steps.meta.outputs.name }}"
+          paths=()
+          for p in composer.json src README.md README.en.md CHANGELOG.md CHANGELOG_de-DE.md CHANGELOG_en-GB.md LICENSE; do
+            [ -e "$p" ] && paths+=("$p")
+          done
+          git archive --format=zip --prefix="$name/" -o "$name-${{ steps.meta.outputs.version }}.zip" HEAD -- "${paths[@]}"
+          unzip -l "$name-${{ steps.meta.outputs.version }}.zip" | tail -1
+
+      - name: Prüfsumme (.sha256) zum ZIP erzeugen
+        if: steps.exists.outputs.skip == 'false'
+        run: |
+          zip="${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip"
+          sha256sum "$zip" > "$zip.sha256"
+          cat "$zip.sha256"
+
+      - name: Release anlegen
+        if: steps.exists.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.meta.outputs.tag }}" \
+            "${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip" \
+            "${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}.zip.sha256" \
+            --target "$GITHUB_SHA" \
+            --title "${{ steps.meta.outputs.name }} ${{ steps.meta.outputs.version }}" \
+            --notes-file notes.md

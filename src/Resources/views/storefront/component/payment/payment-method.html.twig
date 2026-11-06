@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+
+{# Hinweis zur Weiterleitung und zum Mandat, nur bei der GoCardless-Zahlungsart und nur, wenn sie ausgewählt ist #}
+{% block component_payment_method_description %}
+    {{ parent() }}
+    {% if payment.technicalName == 'nova_gocardless_sepa' and payment.id is same as(selectedPaymentMethodId) %}
+        <p class="nova-gocardless-notice small text-muted mb-0">{{ 'novaGoCardless.checkout.notice'|trans|sw_sanitize }}</p>
+    {% endif %}
+{% endblock %}

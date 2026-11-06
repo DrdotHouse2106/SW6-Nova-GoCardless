@@ -1,0 +1,7 @@
+{
+    "novaGoCardless": {
+        "checkout": {
+            "notice": "Nach dem Absenden der Bestellung werden Sie zu GoCardless weitergeleitet und erteilen dort das SEPA-Lastschriftmandat. Ihre Bankdaten gibt der Shop nicht ein und speichert sie nicht. Vor dem Einzug erhalten Sie eine Vorabankündigung per E-Mail."
+        }
+    }
+}

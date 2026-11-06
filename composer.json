@@ -1,0 +1,36 @@
+{
+    "name": "nova/nova-gocardless",
+    "description": "SEPA-Lastschrift über GoCardless für Shopware 6.7: Mandat und Zahlung über die gehostete Seite von GoCardless (Billing Request Flow), Zahlungsstatus per Webhook",
+    "type": "shopware-platform-plugin",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nova"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nova\\GoCardless\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nova\\GoCardless\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "Nova\\GoCardless\\NovaGoCardless",
+        "label": {
+            "de-DE": "Nova GoCardless",
+            "en-GB": "Nova GoCardless"
+        },
+        "description": {
+            "de-DE": "Zahlungsart „SEPA-Lastschrift (GoCardless)“: Der Kunde erteilt das Lastschriftmandat auf der sicheren Seite von GoCardless, der Zahlungsstatus wird per Webhook aktualisiert (bezahlt, fehlgeschlagen, Rückbuchung). Keine Bankdaten im Shop.",
+            "en-GB": "Payment method \"SEPA Direct Debit (GoCardless)\": the customer sets up the direct debit mandate on GoCardless' secure hosted page, the payment status is updated via webhook (paid, failed, chargeback). No bank details stored in the shop."
+        }
+    }
+}

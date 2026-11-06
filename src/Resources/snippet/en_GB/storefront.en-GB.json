@@ -1,0 +1,7 @@
+{
+    "novaGoCardless": {
+        "checkout": {
+            "notice": "After placing your order you will be redirected to GoCardless to set up the SEPA Direct Debit mandate. Your bank details are not entered in or stored by this shop. You will receive an advance notice by e-mail before the payment is collected."
+        }
+    }
+}
